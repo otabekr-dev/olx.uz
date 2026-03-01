@@ -5,13 +5,14 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .serializer import SellerProfileSerializer
+from .serializer import SellerProfileSerializer, SellerDetailSerializer
 from .models import SellerProfile
 from .permissions import IsSeller
 
 class SellerProfileView(APIView):
     permission_classes = [IsAuthenticated, IsSeller]
     authentication_classes = [JWTAuthentication]
+    serializer_class = SellerProfileSerializer
 
     def post(self, request: Request) -> Response:
         user = request.user
@@ -46,3 +47,15 @@ class SellerProfileView(APIView):
 
         return Response(serializer.data)
     
+class SellerDetailView(APIView):
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request: Request, pk:int) -> Response:
+        try:
+            seller = SellerProfile.objects.get(pk=pk)
+        except SellerProfile.DoesNotExist:
+            return Response('Sotuvchi mavjud emas', status=status.HTTP_404_NOT_FOUND)
+
+        serializer = SellerDetailSerializer(seller)
+
+        return Response(serializer.data)

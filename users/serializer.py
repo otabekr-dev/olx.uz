@@ -30,7 +30,23 @@ class SellerProfileSerializer(serializers.ModelSerializer):
         if SellerProfile.objects.filter(shop_name=value).exists():
             raise serializers.ValidationError("Bunaqa do'kon nomi mavjud.")
         return value
-
+    
+class SellerDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SellerProfile
+        fields = [
+            'id',
+            'user',
+            'shop_name',
+            'shop_description',
+            'shop_logo',
+            'region',
+            'district',
+            'address',
+            'rating',
+            'total_sales'
+        ]
+        read_only_fields = fields    
 
 class UserRoleUpdateSerializer(serializers.ModelSerializer):
     class Meta:

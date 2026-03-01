@@ -48,6 +48,7 @@ class BotLoginView(APIView):
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+    serializer_class = UserProfileSerializer
 
     def get(self, request):
 
@@ -66,16 +67,10 @@ class ProfileView(APIView):
 
 
 class Change2SellerView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
-    def patch(self, request, pk: int):
-        try:
-            user = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            return Response(
-                {"detail": "User mavjud emas"},
-                status=status.HTTP_404_NOT_FOUND
-            )
+    def patch(self, request):
+        user = request.user
 
         if user.role == 'CUSTOMER':
             user.role = 'SELLER'
