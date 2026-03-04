@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     #3rd party apps
     'drf_spectacular',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',    
     'rest_framework',
 ]
 

@@ -58,6 +58,7 @@ class ProductDetailView(APIView):
     def get_object(self, pk: int):
         try:
             product = Product.objects.get(pk=pk)
+            return product
         except Product.DoesNotExist:
             return None
 

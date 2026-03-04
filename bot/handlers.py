@@ -2,9 +2,9 @@ import requests
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
 
-BACKEND_LOGIN_URL = "http://127.0.0.1:8000/auth/bot-login/"
-BACKEND_REFRESH_URL = "http://127.0.0.1:8000/auth/refresh/"
-
+BACKEND_LOGIN_URL = "http://127.0.0.1:8000/api/v1/telegram-login/"
+BACKEND_REFRESH_URL = "http://127.0.0.1:8000/api/v1/refresh/"
+LOGOUT_URL = "http://127.0.0.1:8000/api/v1/logout/"
 
 user_temp_data = {}
 user_tokens = {}
@@ -14,7 +14,7 @@ def start(update: Update, context: CallbackContext):
 
     update.message.reply_text(
         f"Salom {user.first_name}! 👋\n"
-        "Rasm yuboring yoki /skip qiling."
+        "Rasm yuboring yoki /skip qiling./logout buyrug'i bilan tizimdan chiqishingiz mumkin va tokenlaringiz ishlamaydi"
     )
 
 def handle_photo(update: Update, context: CallbackContext):
@@ -69,6 +69,43 @@ def login_and_send_tokens(update: Update, payload):
         reply_markup=reply_markup
     )
 
+def logout_handler(update: Update, context: CallbackContext):
+    telegram_user_id = update.message.from_user.id
+
+
+    tokens = user_tokens.get(telegram_user_id)
+    if not tokens:
+        update.message.reply_text("Siz login qilmagansiz.")
+        return
+
+    access_token = tokens.get("access")
+    refresh_token = tokens.get("refresh")
+
+    if not access_token or not refresh_token:
+        update.message.reply_text("Tokenlar topilmadi.")
+        return
+
+
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    data = {
+        "refresh": refresh_token
+    }
+
+
+    try:
+        response = requests.post(LOGOUT_URL, json=data, headers=headers)
+    except Exception as e:
+        update.message.reply_text(f"Server bilan bog'lanishda xatolik: {e}")
+        return
+
+    if response.status_code == 200:
+
+        user_temp_data.pop(telegram_user_id, None)
+        update.message.reply_text("Siz muvaffaqiyatli logout qilindingiz.")
+    else:
+        update.message.reply_text(f"Logout xatolik bilan yakunlandi: {response.text}")
 
 
 def button_handler(update: Update, context: CallbackContext):

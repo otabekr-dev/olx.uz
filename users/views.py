@@ -43,6 +43,27 @@ class BotLoginView(APIView):
             "access": str(refresh.access_token),
             "refresh": str(refresh)
         })
+
+class LogOutView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def post(self, request: Request) -> Response:
+        refresh_token = request.data.get('refresh')
+
+        if not refresh_token:
+            return Response('Refresh token kerak', status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except Exception:
+            return Response('Tokenda xatolik', status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response('Logout muvaffaqiyatli', status=status.HTTP_200_OK)
+            
+        
+
     
 
 class ProfileView(APIView):

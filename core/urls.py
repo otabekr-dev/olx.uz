@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/v1/', include('users.urls')),
     path('api/v1/', include('users.profile_urls')),
     path('api/v1/', include('products.urls')),
+    path('api/v1/', include('products.category_urls')),
 
 
     #swagger urls
