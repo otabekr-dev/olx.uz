@@ -5,6 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from products.models import Product
+from products.serializers import ProductListSerializer
 from .serializer import SellerProfileSerializer, SellerDetailSerializer
 from .models import SellerProfile
 from .permissions import IsSeller
@@ -59,3 +61,18 @@ class SellerDetailView(APIView):
         serializer = SellerDetailSerializer(seller)
 
         return Response(serializer.data)
+
+class SellerProducts(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+
+    def get(self, request: Request, pk:int) -> Response:
+        products = Product.objects.filter(
+            seller_id=pk,
+            status = Product.Status.ACTIVE
+        )
+
+        serializer = ProductListSerializer(products, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
