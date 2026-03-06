@@ -29,7 +29,7 @@ class Order(models.Model):
     class Status(models.TextChoices):
         PENDING = "KUTILYAPTI", "Kutilyapti"
         AGREED = "KELISHILGAN", "Kelishilgan"
-        PURCHASED = "SOTIB_OLINGAN", "Sotib olingan"
+        COMPLETED = "SOTIB_OLINGAN", "Sotib olingan"
         CANCELLED = "BEKOR_QILINGAN", "Bekor qilingan"
 
     product = models.ForeignKey(
