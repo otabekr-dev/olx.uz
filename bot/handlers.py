@@ -2,9 +2,9 @@ import requests
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
 
-BACKEND_LOGIN_URL = "http://127.0.0.1:8000/api/v1/telegram-login/"
-BACKEND_REFRESH_URL = "http://127.0.0.1:8000/api/v1/refresh/"
-LOGOUT_URL = "http://127.0.0.1:8000/api/v1/logout/"
+BACKEND_LOGIN_URL = "http://localhost/api/v1/telegram-login/"
+BACKEND_REFRESH_URL = "http://localhost/api/v1/refresh/"
+LOGOUT_URL = "http://localhost/api/v1/logout/"
 
 user_temp_data = {}
 user_tokens = {}
