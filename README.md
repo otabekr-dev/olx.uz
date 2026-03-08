@@ -331,3 +331,450 @@ Quyidagi endpointlarni REST prinsiplari asosida yarating. Barcha endpointlar (re
 ---
 
 **Omad!** Agar savollar bo‘lsa, o‘qituvchingizga murojaat qiling.
+
+
+
+
+
+
+
+
+
+    ____________request examples__________________
+# API Requests (Postman Examples)
+
+Base URL
+
+```
+http://127.0.0.1:8000/api/v1/
+```
+
+Header (authenticated endpointlar uchun)
+
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+---
+
+# 4.2 User Profile
+
+## Get current user profile
+
+```
+GET /api/v1/users/me/
+```
+
+Headers
+
+```
+Authorization: Bearer <access_token>
+```
+
+Response example
+
+```json
+{
+  "id": 5,
+  "phone_number": "+998901234567",
+  "first_name": "Ali",
+  "last_name": "Valiyev",
+  "role": "customer"
+}
+```
+
+---
+
+## Update profile
+
+```
+PATCH /api/v1/users/me/
+```
+
+Body
+
+```json
+{
+  "first_name": "Ali",
+  "phone_number": "+998900000000"
+}
+```
+
+---
+
+## Upgrade user to seller
+
+```
+POST /api/v1/users/me/upgrade-to-seller/
+```
+
+Body
+
+```json
+{
+  "shop_name": "Tech Store",
+  "shop_description": "Telefon va gadjetlar do‘koni"
+}
+```
+
+---
+
+## Get seller info
+
+```
+GET /api/v1/sellers/{seller_id}/
+```
+
+Example
+
+```
+GET /api/v1/sellers/3/
+```
+
+Response
+
+```json
+{
+  "id": 3,
+  "shop_name": "Tech Store",
+  "rating": 4.7,
+  "total_sales": 32
+}
+```
+
+---
+
+## Get seller products
+
+```
+GET /api/v1/sellers/{seller_id}/products/
+```
+
+Example
+
+```
+GET /api/v1/sellers/3/products/
+```
+
+---
+
+# 4.3 Categories
+
+## Get all categories
+
+```
+GET /api/v1/categories/
+```
+
+Response
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Elektronika",
+    "slug": "elektronika"
+  }
+]
+```
+
+---
+
+## Get category by slug
+
+```
+GET /api/v1/categories/{slug}/
+```
+
+Example
+
+```
+GET /api/v1/categories/elektronika/
+```
+
+---
+
+## Get products in category
+
+```
+GET /api/v1/categories/{slug}/products/
+```
+
+Example
+
+```
+GET /api/v1/categories/elektronika/products/
+```
+
+---
+
+# 4.4 Products
+
+## Get all products
+
+```
+GET /api/v1/products/
+```
+
+Filter examples
+
+```
+GET /api/v1/products/?search=iphone
+GET /api/v1/products/?min_price=100&max_price=500
+GET /api/v1/products/?category=telefonlar
+```
+
+---
+
+## Get product detail
+
+```
+GET /api/v1/products/{id}/
+```
+
+Example
+
+```
+GET /api/v1/products/10/
+```
+
+Response
+
+```json
+{
+  "id": 10,
+  "title": "Iphone 13",
+  "price": 800,
+  "view_count": 12,
+  "status": "ACTIVE"
+}
+```
+
+---
+
+## Create product
+
+```
+POST /api/v1/products/
+```
+
+Body
+
+```json
+{
+  "title": "Iphone 13",
+  "description": "Ideal holatda",
+  "price": 800,
+  "category_id": 2
+}
+```
+
+---
+
+## Update product
+
+```
+PATCH /api/v1/products/{id}/
+```
+
+Body
+
+```json
+{
+  "price": 750
+}
+```
+
+---
+
+## Delete product
+
+```
+DELETE /api/v1/products/{id}/
+```
+
+---
+
+## Publish product
+
+```
+POST /api/v1/products/{id}/publish/
+```
+
+---
+
+## Archive product
+
+```
+POST /api/v1/products/{id}/archive/
+```
+
+---
+
+## Mark product as sold
+
+```
+POST /api/v1/products/{id}/sold/
+```
+
+---
+
+# 4.5 Favorites
+
+## Get favorite products
+
+```
+GET /api/v1/favorites/
+```
+
+---
+
+## Add product to favorites
+
+```
+POST /api/v1/favorites/
+```
+
+Body
+
+```json
+{
+  "product_id": 5
+}
+```
+
+---
+
+## Remove favorite
+
+```
+DELETE /api/v1/favorites/{id}/
+```
+
+Example
+
+```
+DELETE /api/v1/favorites/3/
+```
+
+---
+
+# 4.6 Orders
+
+## Get orders
+
+```
+GET /api/v1/orders/
+```
+
+Filter example
+
+```
+GET /api/v1/orders/?role=buyer
+GET /api/v1/orders/?role=seller
+```
+
+---
+
+## Create order
+
+```
+POST /api/v1/orders/
+```
+
+Body
+
+```json
+{
+  "product_id": 5,
+  "notes": "Ertaga olib ketaman"
+}
+```
+
+---
+
+## Get order detail
+
+```
+GET /api/v1/orders/{id}/
+```
+
+Example
+
+```
+GET /api/v1/orders/12/
+```
+
+---
+
+## Update order status
+
+```
+PATCH /api/v1/orders/{id}/
+```
+
+Body examples
+
+Buyer or seller update
+
+```json
+{
+  "status": "AGREED"
+}
+```
+
+```json
+{
+  "status": "COMPLETED"
+}
+```
+
+```json
+{
+  "status": "CANCELLED"
+}
+```
+
+Meeting info update
+
+```json
+{
+  "meeting_location": "Toshkent",
+  "meeting_time": "2026-03-09T14:00:00Z"
+}
+```
+
+---
+
+# 4.7 Reviews
+
+## Get all reviews
+
+```
+GET /api/v1/reviews/
+```
+
+Filter
+
+```
+GET /api/v1/reviews/?seller_id=3
+```
+
+---
+
+## Create review
+
+```
+POST /api/v1/reviews/
+```
+
+Body
+
+```json
+{
+  "order_id": 12,
+  "rating": 5,
+  "comment": "Mahsulot juda yaxshi"
+}
+```
