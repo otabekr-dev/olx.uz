@@ -4,13 +4,16 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
+from users.permissions import IsCustomer
+from django.db.models import Avg
 
 from products.models import Product
 from .models import Favorite, Order, Review
 from .serializers import (
     FavoriteCreateSerializer, FavoriteListSerializer,
     OrderCreateSerializer, OrderDetailSerializer,
-    OrderUpdateSerializer, OrderListSerializer
+    OrderUpdateSerializer, OrderListSerializer,
+    ReviewCreateSerializer, ReviewListSerializer
 )
 
 
@@ -218,3 +221,51 @@ class OrderDetailView(APIView):
             )
 
         return Response(OrderDetailSerializer(order).data)
+    
+
+class ReviewListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+
+    def get(self, request: Request) -> Response:
+        seller_id = request.query_params.get('seller_id')
+        
+        reviews = Review.objects.all()
+
+        if seller_id:
+            reviews = reviews.filter(seller_id=seller_id)
+
+        serializer = ReviewListSerializer(reviews, many=True)
+        return Response(serializer.data)
+
+
+    def post(self, request:Request) -> Response:    
+        serializer = ReviewCreateSerializer(
+            data=request.data,
+            context = {'request': request}
+        )
+
+        if serializer.is_valid(raise_exception=True):
+            order = serializer.validated_data['order']
+
+
+            review = Review.objects.create(
+                order=order,
+                reviewer=request.user,
+                seller=order.seller,
+                rating = serializer.validated_data['rating'],
+                comment = serializer.validated_data.get('comment', '')
+            )
+
+        avg_rating = Review.objects.filter(
+            seller=order.seller
+        ).aggregate(avg=Avg("rating"))["avg"]
+
+
+        seller_profile = order.seller.sellerprofile
+        seller_profile.rating = avg_rating
+        seller_profile.save(update_fields=["rating"])
+
+        response_serializer = ReviewListSerializer(review)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)        

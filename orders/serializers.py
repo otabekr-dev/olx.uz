@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Favorite, Order
+from .models import Favorite, Order, Review
 from products.models import Product
 
 
@@ -123,3 +123,50 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Bu order sizga tegishli emas")
 
         return attrs
+    
+
+class ReviewCreateSerializer(serializers.Serializer):
+    order_id = serializers.IntegerField()
+    rating = serializers.IntegerField(min_value=1, max_value=5)
+    comment = serializers.CharField()
+
+
+
+    def validate(self, attrs):
+        request = self.context['request']
+        user = request.user
+        order_id = attrs['order_id']
+
+        try:
+            order = Order.objects.get(pk=order_id)
+        except Order.DoesNotExist:
+            raise serializers.ValidationError('Buyurtma mavjud emas')
+        
+        if order.buyer != user:
+            raise serializers.ValidationError('Faqat mijoz review qoldira oladi')
+        
+        if order.status != Order.Status.COMPLETED:
+            raise serializers.ValidationError(
+                'Faqat sotib olingan maxsulotga review yoziladi'
+            )
+        
+        if Review.objects.filter(order=order).exists():
+            raise serializers.ValidationError(
+                'Bu order uchun review mavjud'
+            )
+            
+        attrs['order'] = order
+        return attrs    
+
+class ReviewListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Review
+        fields = [
+            'id',
+            'rating',
+            'comment',
+            'reviewer',
+            'seller',
+            'created_at'
+        ]
+    
